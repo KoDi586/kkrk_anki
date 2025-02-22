@@ -1,0 +1,19 @@
+server:
+  port: ${MY_SERVER_PORT}
+
+telegram:
+  bot:
+    name: ${TG_NAME}
+    token: ${TG_TOKEN}
+
+spring:
+  datasource:
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+
+  sql:
+    init:
+      schema-locations: classpath:sql/schema.sql
+      data-locations: classpath:sql/data.sql
+      mode: always

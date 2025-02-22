@@ -1,0 +1,24 @@
+services:
+
+  anki-database:
+    image: postgres
+    ports:
+      - "5433:5432"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 1234
+      POSTGRES_DB: anki
+
+#  spring-boot-server:
+#    build:
+#      context: ./SportProgam
+#    environment:
+#      SPRING_DATASOURCE_URL: jdbc:postgresql://database:5442/sport_tech
+#      SPRING_DATASOURCE_USERNAME: postgres
+#      SPRING_DATASOURCE_PASSWORD: 1234
+#    ports:
+#      - "8082:8082"
+#    deploy:
+#      resources:
+#        limits:
+#          memory: 2048M
