@@ -33,24 +33,12 @@ public class UpdateListener implements UpdatesListener {
             try {
                 log.info("profile first name is: {}, username is: {}",
                         update.message().chat().firstName(), update.message().chat().username());
-                String savingResult = mainService.save(update);
-                if (update.message().text().equals("all")) {
-                    log.info(savingResult);
-                    for (String user : mainService.getUsers()) {
-                        telegramBot.execute(
-                                new SendMessage(
-                                        update.message().chat().id(),
-                                        user
-                                ));
-                    }
 
+//                String savingResult = mainService.save(update);
+                if (update.message().text().startsWith("/")) {
+                    mainService.process(update);
                 } else {
-                    telegramBot.execute(
-                            new SendMessage(
-                                    update.message().chat().id(),
-                                    "other test.\n"+savingResult
-                            )
-                    );
+                    mainService.workWithText(update);
                 }
             } catch (Exception e) {
                 log.warn("will error in {}", update.toString());
