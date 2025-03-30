@@ -36,7 +36,8 @@ public class UserService {
     public enum Session {
         ADD_QUESTION("/add_question_seconds"),
         ADD_QUESTION_SECONDS("/add_question_text"),
-        STOP("/stop");
+        STOP("/stop"),
+        WAIT_WORDS("/add_words_for_learning_to_db");
 
         private final String value;
 

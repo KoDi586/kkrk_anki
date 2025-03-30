@@ -11,11 +11,7 @@ from DeeperSeek import DeepSeek
 
 TOKEN_FILE = "deepseek_token.pkl"
 
-async def run_deepseek(message):
-    api = None
-    token = None
-
-    # Проверяем, есть ли сохранённый токен
+async def initialize_api():
     if os.path.exists(TOKEN_FILE):
         try:
             with open(TOKEN_FILE, 'rb') as f:
@@ -24,40 +20,56 @@ async def run_deepseek(message):
                 token=token,
                 chat_id=None,
                 verbose=False,
-                headless=True,
+                headless=False,
                 chrome_args=["--no-sandbox", "--disable-gpu", "--remote-debugging-port=9333"],
                 attempt_cf_bypass=True
             )
-            await api.initialize()  # Инициализируем даже с токеном
-            response = await api.send_message(message, deepthink=True, timeout=60)
-            print(response.text)
+            await api.initialize()
+            await api.send_message("Test", deepthink=False, timeout=60)
+            return api
         except Exception as e:
             print(f"Ошибка с токеном: {e}", file=sys.stderr)
-            # Если токен не работает, удаляем его и пробуем авторизацию заново
             os.remove(TOKEN_FILE)
-            return await run_deepseek_with_login(message)
-    else:
-        api = await run_deepseek_with_login(message)
 
-async def run_deepseek_with_login(message):
     api = DeepSeek(
         email="kim.danil.586@gmail.com",           # Замените на ваш email
         password="q1111111",     # Замените на ваш пароль
+
         chat_id=None,
         verbose=False,
-        headless=True,
+        headless=False,
         chrome_args=["--no-sandbox", "--disable-gpu", "--remote-debugging-port=9333"],
         attempt_cf_bypass=True
     )
     await api.initialize()
-    response = await api.send_message(message, deepthink=True, timeout=60)
-    print(response.text)
-    # Сохраняем токен после успешного входа
     token = await api.retrieve_token()
     with open(TOKEN_FILE, 'wb') as f:
         pickle.dump(token, f)
     return api
 
+async def run_deepseek_server():
+    api = await initialize_api()
+    print("Ready", file=sys.stderr)
+    sys.stderr.flush()
+
+    while True:
+        try:
+            message = input().strip()
+            if message.lower() == "exit":
+                break
+            response = await api.send_message(message, deepthink=False, timeout=60)
+            print(response.text)  # Выводим ответ
+            print("END_RESPONSE")  # Явный маркер конца ответа
+            sys.stdout.flush()
+        except EOFError:
+            break
+        except Exception as e:
+            print(f"Ошибка: {e}", file=sys.stderr)
+            print("END_RESPONSE", file=sys.stderr)
+            sys.stdout.flush()
+
+    await api.logout()
+    print("Shutdown", file=sys.stderr)
+
 if __name__ == "__main__":
-    message = sys.argv[1] if len(sys.argv) > 1 else "Hey DeepSeek, how are you?"
-    asyncio.run(run_deepseek(message))
+    asyncio.run(run_deepseek_server())

@@ -11,6 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 //import org.example.sevrice.listenerService.MainListenerService;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.util.List;
 
 @Service
@@ -43,22 +44,30 @@ public class UpdateListener implements UpdatesListener {
             } catch (Exception e) {
                 log.warn("will error in {}", update.toString());
             }
-//            if (update.message() != null) {
-//                if (update.message().text() != null) {
+
+
+            if (update.message() != null) {
+                if (update.message().text() != null) {
 //                    listenerService.workWithText(
 //                            update.message().text(),
 //                            update
 //                    );
-//                } else {
+                    log.info("message text");
+                } else {
 //                    listenerService.dontUnderstand(
 //                            update.message().chat().id()
 //                    );
-//                }
-//            } else if (update.callbackQuery() != null) {
-//                listenerService.workWithButton(
-//                        update
-//                );
-//            }
+                    log.info("message not a text");
+                }
+            } else if (update.callbackQuery() != null) {
+                try {
+                    mainService.workWithButton(
+                            update
+                    );
+                } catch (IOException | InterruptedException e) {
+                    log.info("error in call back query");
+                }
+            }
 
         });
         return UpdatesListener.CONFIRMED_UPDATES_ALL;

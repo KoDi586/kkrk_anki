@@ -8,6 +8,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -35,7 +37,7 @@ public class MainService {
         }
         if (userModel == null) {
             userRepository.save(new UserModel(
-                    userRepository.count()+1234,
+                    userRepository.count()+1235,
                     update.message().chat().username(),
                     "null",
                     update.message().chat().id(),
@@ -44,14 +46,20 @@ public class MainService {
         }
     }
 
-    public void process(Update update) {
+    public void process(Update update) throws IOException, InterruptedException {
         save(update);
         commandContainer.process(update.message().text(), update);
     }
 
-    public void workWithText(Update update) {
+    public void workWithText(Update update) throws IOException, InterruptedException {
         Long chatId = update.message().chat().id();
         UserModel userModel = userRepository.findByChatId(chatId).get();
         commandContainer.process(userService.receive(userModel.getSession()),update);
+    }
+
+    public void workWithButton(Update update) throws IOException, InterruptedException {
+        String data = update.callbackQuery().data();
+        log.info("call back: {}", data);
+        commandContainer.process(data, update);
     }
 }
